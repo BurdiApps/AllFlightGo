@@ -1,12 +1,16 @@
 using AllFlight.Components;
+using AllFlight.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddHttpClient<DuffelService>(); // 👈 add
+builder.Services.AddScoped<FlightService>();
+
 var app = builder.Build();
+// ...existing code...
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

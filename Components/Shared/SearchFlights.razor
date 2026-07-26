@@ -1,0 +1,81 @@
+<div class="afg-card">
+    <div class="afg-grid">
+        <div class="afg-field">
+            <label>Origin</label>
+            <input @bind="Origin" placeholder="e.g. JFK" maxlength="3" />
+        </div>
+        <div class="afg-field">
+            <label>Destination</label>
+            <input @bind="Destination" placeholder="e.g. LAX" maxlength="3" />
+        </div>
+        <div class="afg-field">
+            <label>Departure Date</label>
+            <input type="date" @bind="DepartureDate" />
+        </div>
+        <div class="afg-field">
+            <label>Passengers</label>
+            <select @bind="Passengers">
+                @for (int i = 1; i <= 6; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div style="color: var(--afg-orange); font-weight:600; margin-top:12px;">
+            ⚠️ @ErrorMessage
+        </div>
+    }
+
+    <div style="margin-top:16px; text-align:right;">
+        <button class="afg-btn" @onclick="OnSearch">Search Flights</button>
+    </div>
+</div>
+
+@code {
+    private string Origin { get; set; } = "";
+    private string Destination { get; set; } = "";
+    private DateTime DepartureDate { get; set; } = DateTime.Today.AddDays(30);
+    private int Passengers { get; set; } = 1;
+    private string? ErrorMessage;
+
+    [Parameter] public EventCallback<SearchCriteria> OnSubmit { get; set; }
+
+    private async Task OnSearch()
+    {
+        ErrorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Origin) || Origin.Length != 3)
+        { ErrorMessage = "Enter a 3-letter origin code (e.g. JFK)"; return; }
+
+        if (string.IsNullOrWhiteSpace(Destination) || Destination.Length != 3)
+        { ErrorMessage = "Enter a 3-letter destination code (e.g. LAX)"; return; }
+
+        if (Origin.Equals(Destination, StringComparison.OrdinalIgnoreCase))
+        { ErrorMessage = "Origin and destination must differ"; return; }
+
+        if (DepartureDate < DateTime.Today)
+        { ErrorMessage = "Departure date must be today or later"; return; }
+
+        var criteria = new SearchCriteria
+        {
+            Origin = Origin.ToUpper(),
+            Destination = Destination.ToUpper(),
+            DepartureDate = DepartureDate,
+            Passengers = Passengers
+        };
+        if (OnSubmit.HasDelegate)
+            await OnSubmit.InvokeAsync(criteria);
+    }
+
+    public class SearchCriteria
+    {
+        public string Origin { get; set; } = "";
+        public string Destination { get; set; } = "";
+        public DateTime DepartureDate { get; set; }
+        public int Passengers { get; set; }
+    }
+}

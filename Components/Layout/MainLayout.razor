@@ -1,23 +1,49 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Nav
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+<nav class="afg-navbar">
+    <a href="/" class="brand">
+        <img src="img/AFG_logo.svg" alt="AllFlightGo" />
+        <div class="brand-text">
+            <span class="brand-name">AllFlightGo</span>
+            <span class="brand-tagline">Go Anywhere</span>
         </div>
+    </a>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <button class="afg-nav-toggle" @onclick="ToggleMenu" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <div class="afg-nav-links @(MenuOpen ? "open" : "")">
+        <a href="/" class="@ActiveIf("/")">Home</a>
+        <a href="/search" class="@ActiveIf("/search")">Search</a>
+        <a href="/bookings" class="@ActiveIf("/bookings")">My Bookings</a>
+        <a href="/profile" class="@ActiveIf("/profile")">Profile</a>
+        <a href="/logout" class="afg-nav-logout">Logout</a>
+    </div>
+</nav>
+
+<main>
+    @Body
+</main>
+
+<footer class="afg-footer">
+    AllFlightGo © @DateTime.Now.Year
+</footer>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private bool MenuOpen;
+    private void ToggleMenu() => MenuOpen = !MenuOpen;
+
+    private string ActiveIf(string path)
+    {
+        var current = new Uri(Nav.Uri).AbsolutePath;
+        return current.Equals(path, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    }
+}

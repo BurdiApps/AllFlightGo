@@ -1,7 +1,49 @@
 ﻿@page "/"
+@using AllFlight.Components.Shared
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+<PageTitle>AllFlightGo</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="afg-hero">
+    <div class="afg-hero-content">
+        <h1>Go Anywhere</h1>
+        <p>Compare flights from every airline in one place — save time, save money.</p>
+    </div>
+</section>
 
-Welcome to your new app.
+<div class="afg-container">
+    <h1 class="afg-title">Find Your Flight</h1>
+
+    <SearchFlights OnSubmit="HandleSearch" />
+
+    <div class="afg-section-title">Popular Destinations</div>
+    <div class="afg-destinations">
+        @foreach (var d in Destinations)
+        {
+            <div class="afg-destination">
+                <div class="thumb"></div>
+                <div class="name">@d</div>
+            </div>
+        }
+    </div>
+
+    <div class="afg-section-title">Featured Deals</div>
+    <div class="afg-deals">
+        <div class="afg-deal">Deal A</div>
+        <div class="afg-deal">Deal B</div>
+        <div class="afg-deal">Deal C</div>
+    </div>
+</div>
+
+@code {
+    private string[] Destinations = new[] { "Los Angeles", "New York", "Chicago", "Miami" };
+
+    private void HandleSearch(SearchFlights.SearchCriteria c)
+    {
+        var url = $"/search?origin={Uri.EscapeDataString(c.Origin)}"
+                + $"&destination={Uri.EscapeDataString(c.Destination)}"
+                + $"&date={c.DepartureDate:yyyy-MM-dd}"
+                + $"&passengers={c.Passengers}";
+        Nav.NavigateTo(url);
+    }
+}

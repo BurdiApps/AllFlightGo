@@ -12,6 +12,23 @@
 </section>
 
 <div class="afg-container">
+    <AuthorizeView>
+        <Authorized>
+            <div class="afg-card" style="max-width: 480px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Welcome back</h2>
+                <p>Your account is ready. Continue to your bookings to manage your trips.</p>
+                <a class="afg-btn" href="/mybookings">View my bookings</a>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="afg-card" style="max-width: 480px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;">Sign in with Google</h2>
+                <p>Use your Google account to save and manage your travel plans.</p>
+                <a class="afg-btn" href="/login">Continue with Google</a>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+
     <h1 class="afg-title">Find Your Flight</h1>
 
     <SearchFlights OnSubmit="HandleSearch" />

@@ -17,9 +17,16 @@
     <div class="afg-nav-links @(MenuOpen ? "open" : "")">
         <a href="/" class="@ActiveIf("/")">Home</a>
         <a href="/search" class="@ActiveIf("/search")">Search</a>
-        <a href="/bookings" class="@ActiveIf("/bookings")">My Bookings</a>
-        <a href="/profile" class="@ActiveIf("/profile")">Profile</a>
-        <a href="/logout" class="afg-nav-logout">Logout</a>
+        <AuthorizeView>
+            <Authorized>
+                <a href="/mybookings" class="@ActiveIf("/mybookings")">My Bookings</a>
+                <a href="/profile" class="@ActiveIf("/profile")">Profile</a>
+                <a href="/logout" class="afg-nav-logout">Logout</a>
+            </Authorized>
+            <NotAuthorized>
+                <a href="/login" class="afg-nav-logout">Sign in with Google</a>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
 </nav>
 

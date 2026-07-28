@@ -480,3 +480,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+echo "" >> .gitignore
+echo "# SQLite database files" >> .gitignore
+echo "*.db" >> .gitignore
+echo "*.db-shm" >> .gitignore
+echo "*.db-wal" >> .gitignore

@@ -1,0 +1,18 @@
+@page "/login"
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Forms
+@inject NavigationManager Nav
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Sign in</PageTitle>
+
+<div class="afg-container">
+    <h1 class="afg-title">Sign in to AllFlightGo</h1>
+    <p>Use Google to sign in and start planning your trips.</p>
+
+    <div class="afg-card" style="max-width: 420px; margin-top: 20px;">
+        <a href="/login-google" class="afg-btn" style="display: inline-block; width: 100%; text-align: center; text-decoration: none;">Continue with Google</a>
+    </div>
+</div>

@@ -237,6 +237,7 @@ html, body {
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(240,132,23,0.35);
     transition: transform 0.1s ease, filter 0.1s ease;
+    text-decoration: none;
 }
 .afg-btn:hover {
     transform: translateY(-1px);

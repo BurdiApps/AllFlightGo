@@ -45,7 +45,7 @@ else
                     <div style="font-size:48px; font-weight:bold;">@flight.Score</div>
                     <div><small>/ 100</small></div>
                     <progress value="@flight.Score" max="100" style="width:100%;"></progress>
-                    <button class="afg-btn">View Breakdown</button>
+                    <button class="afg-btn" @onclick="ViewBreakdown">View Breakdown</button>
                 </div>
 
                 <div class="afg-card" style="margin-top:16px;">
@@ -69,5 +69,10 @@ else
     private void SelectSeat()
     {
         Nav.NavigateTo("/select-seat");
+    }
+
+    private void ViewBreakdown()
+    {
+        Nav.NavigateTo("/transparency-breakdown");
     }
 }

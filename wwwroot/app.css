@@ -269,6 +269,28 @@ html, body {
     box-shadow: 0 2px 8px rgba(240,132,23,0.35);
 }
 
+.seat-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.seat-btn.selected {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.seat-btn.seat-blocked {
+    background: #eee;
+    cursor: default;
+    color: #999;
+}
+
 /* ============================================================
    Destinations / Deals
    ============================================================ */

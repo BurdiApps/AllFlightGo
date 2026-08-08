@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Nav
-
+@implements IDisposable
 <nav class="afg-navbar">
     <a href="/" class="brand">
         <img src="img/AFG_logo.svg" alt="AllFlightGo" />
@@ -52,5 +52,21 @@
     {
         var current = new Uri(Nav.Uri).AbsolutePath;
         return current.Equals(path, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    }
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        MenuOpen = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= HandleLocationChanged;
     }
 }

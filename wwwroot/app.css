@@ -193,6 +193,13 @@ html, body {
     box-shadow: 0 2px 8px rgba(41,50,65,0.06);
 }
 
+.afg-details-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+
 .afg-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -562,6 +569,9 @@ html, body {
 
     .afg-hero { padding: 50px 20px; min-height: 200px; }
     .afg-hero-content h1 { font-size: 30px; }
+    .afg-details-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 500px) {

@@ -74,4 +74,67 @@ public class DuffelService
 
         return flights.OrderBy(f => f.Price).ToList();
     }
+
+    public async Task<List<SeatMapCabin>> GetSeatMapAsync(string offerId)
+{
+    var res = await _http.GetAsync($"air/seat_maps?offer_id={offerId}");
+    res.EnsureSuccessStatusCode();
+
+    using var stream = await res.Content.ReadAsStreamAsync();
+    using var doc = await JsonDocument.ParseAsync(stream);
+
+    var cabins = new List<SeatMapCabin>();
+    var seatMaps = doc.RootElement.GetProperty("data");
+
+    // one seat map per segment — take the first for now
+    if (seatMaps.GetArrayLength() == 0) return cabins;
+
+    var firstMap = seatMaps[0];
+    foreach (var cabinJson in firstMap.GetProperty("cabins").EnumerateArray())
+    {
+        var cabin = new SeatMapCabin();
+
+        foreach (var rowJson in cabinJson.GetProperty("rows").EnumerateArray())
+        {
+            var row = new SeatRow();
+
+            foreach (var sectionJson in rowJson.GetProperty("sections").EnumerateArray())
+            {
+                var section = new List<SeatElement>();
+
+                foreach (var el in sectionJson.GetProperty("elements").EnumerateArray())
+                {
+                    var type = el.GetProperty("type").GetString() ?? "";
+                    string? designator = el.TryGetProperty("designator", out var d) ? d.GetString() : null;
+
+                    decimal? price = null;
+                    string? currency = null;
+
+                    if (el.TryGetProperty("available_services", out var services) && services.GetArrayLength() > 0)
+                    {
+                        var firstService = services[0];
+                        price = decimal.Parse(firstService.GetProperty("total_amount").GetString() ?? "0");
+                        currency = firstService.GetProperty("total_currency").GetString();
+                    }
+
+                    section.Add(new SeatElement
+                    {
+                        Type = type,
+                        Designator = designator,
+                        Price = price,
+                        Currency = currency
+                    });
+                }
+
+                row.Sections.Add(section);
+            }
+
+            cabin.Rows.Add(row);
+        }
+
+        cabins.Add(cabin);
+    }
+
+    return cabins;
+}
 }

@@ -1,0 +1,51 @@
+@page "/transparency-breakdown"
+@inject SelectedFlightService SelectedFlight
+@using AllFlight.Services
+
+@if (flight is null)
+{
+    <p>No flight selected. <a href="/search">Back to search</a></p>
+}
+else
+{
+    <div class="afg-container">
+        <div class="afg-card" style="max-width: 700px;">
+            <h2>Transparency Score</h2>
+
+            <div style="display:flex; gap: 32px; align-items: flex-start;">
+                <div style="text-align:center; min-width:110px;">
+                    <div style="font-size:56px; font-weight:bold; line-height:1;">@flight.Score</div>
+                    <small>/ 100</small>
+                </div>
+
+                <div style="flex:1;">
+                    @foreach (var factor in Breakdown)
+                    {
+                        <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>@factor.Label</strong>
+                            <span>+@factor.EarnedPoints</span>
+                        </div>
+                    }
+                    <div style="display:flex; justify-content:space-between; padding:12px 0; font-weight:bold;">
+                        <span>Total</span>
+                        <span>@flight.Score</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Flight? flight;
+    private List<TransparencyFactor> Breakdown = new();
+
+    protected override void OnInitialized()
+    {
+        flight = SelectedFlight.Current;
+        if (flight is not null)
+        {
+            Breakdown = TransparencyScoreCalculator.GetBreakdown(flight);
+        }
+    }
+}

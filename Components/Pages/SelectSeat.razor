@@ -1,0 +1,100 @@
+@page "/select-seat"
+@inject SelectedFlightService SelectedFlight
+@inject FlightService Flights
+@using AllFlight.Services
+@rendermode InteractiveServer
+
+@if (flight is null)
+{
+    <p>No flight selected. <a href="/search">Back to search</a></p>
+}
+else if (IsLoading)
+{
+    <p>Loading seat map...</p>
+}
+else if (!Cabins.Any())
+{
+    <p>No seat map available for this flight. You can continue without selecting a seat.</p>
+    <button class="afg-btn" @onclick="Continue">Continue</button>
+}
+else
+{
+    <div class="afg-container">
+        <h2 class="afg-title">Select Your Seat</h2>
+        <p>@flight.Airline · @flight.FlightNumber</p>
+
+        @foreach (var cabin in Cabins)
+        {
+            <div class="afg-card" style="max-width: 500px;">
+                @foreach (var row in cabin.Rows)
+                {
+                    <div style="display:flex; gap:16px; margin-bottom:6px; align-items:center;">
+                        @foreach (var section in row.Sections)
+                        {
+                            <div style="display:flex; gap:4px;">
+                                @foreach (var el in section)
+                                {
+                                    if (el.Type == "seat" && el.Designator is not null)
+                                    {
+                                        var isSelected = SelectedDesignator == el.Designator;
+                                        <button class="seat-btn @(isSelected ? "selected" : "")"
+                                                @onclick="() => ChooseSeat(el)">
+                                            @el.Designator
+                                        </button>
+                                    }
+                                    else if (el.Type is "exit_row" or "lavatory" or "galley")
+                                    {
+                                        <div class="seat-btn seat-blocked">·</div>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="afg-card" style="max-width: 500px; margin-top: 16px;">
+            @if (SelectedDesignator is not null)
+            {
+                <p>Selected seat: <strong>@SelectedDesignator</strong>
+                    @(SelectedPrice is > 0 ? $"(+{SelectedPrice:C})" : "(Free)")
+                </p>
+            }
+            else
+            {
+                <p>No seat selected yet.</p>
+            }
+            <button class="afg-btn" @onclick="Continue">Continue</button>
+        </div>
+    </div>
+}
+
+@code {
+    private Flight? flight;
+    private bool IsLoading = true;
+    private List<SeatMapCabin> Cabins = new();
+    private string? SelectedDesignator;
+    private decimal? SelectedPrice;
+
+    protected override async Task OnInitializedAsync()
+    {
+        flight = SelectedFlight.Current;
+        if (flight is not null)
+        {
+            Cabins = await Flights.GetSeatMapAsync(flight.Id);
+        }
+        IsLoading = false;
+    }
+
+    private void ChooseSeat(SeatElement el)
+    {
+        SelectedDesignator = el.Designator;
+        SelectedPrice = el.Price;
+    }
+
+    private void Continue()
+    {
+        // TODO: carry SelectedDesignator/SelectedPrice into booking confirmation step
+    }
+}

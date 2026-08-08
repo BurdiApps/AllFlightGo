@@ -18,4 +18,17 @@ public class FlightService
             return new List<Flight>();
         }
     }
+
+    public async Task<List<SeatMapCabin>> GetSeatMapAsync(string offerId)
+    {
+        try
+        {
+            return await _duffel.GetSeatMapAsync(offerId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Duffel seat map error: {ex.Message}");
+            return new List<SeatMapCabin>();
+        }
+}
 }

@@ -61,7 +61,14 @@ public class DuffelService
                 Arrival = last.GetProperty("arriving_at").GetDateTime(),
                 Stops = segments.GetArrayLength() - 1,
                 Price = decimal.Parse(offer.GetProperty("total_amount").GetString() ?? "0"),
-                Score = 75
+                BaseFare = decimal.Parse(offer.GetProperty("base_amount").GetString() ?? "0"),
+                TaxesAndFees = decimal.Parse(offer.GetProperty("tax_amount").GetString() ?? "0"),
+                // TODO: map real baggage/cancellation data once you confirm Duffel's
+                // sandbox response includes `conditions` / `passengers[].baggages`
+                BaggagePolicy = null,
+                SeatSelectionIncluded = null,
+                CancellationPolicy = null,
+                ChangeFee = null
             });
         }
 

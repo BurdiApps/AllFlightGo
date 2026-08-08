@@ -23,6 +23,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<SelectedFlightService>();
 
 var authBuilder = builder.Services.AddAuthentication(options =>
 {

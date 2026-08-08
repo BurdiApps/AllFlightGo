@@ -1,8 +1,11 @@
 @page "/search"
+@attribute [Authorize]
 @using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.WebUtilities
 @inject FlightService Flights
 @inject NavigationManager Nav
+@inject SelectedFlightService SelectedFlight
 @rendermode InteractiveServer
 
 <PageTitle>Search Results — AllFlightGo</PageTitle>
@@ -81,8 +84,7 @@
 
                     <div class="afg-flight-action">
                         <div class="price">$@f.Price</div>
-                        <button class="afg-btn">View Details</button>
-                    </div>
+                        <button class="afg-btn" @onclick="() => ViewDetails(f)">View Details</button>                    </div>
                 </div>
             }
         }
@@ -122,5 +124,10 @@
         IsLoading = true;
         AllResults = await Flights.SearchAsync(Origin, Destination, Date, Passengers);
         IsLoading = false;
+    }
+    private void ViewDetails(Flight f)
+    {
+        SelectedFlight.Set(f);
+        Nav.NavigateTo("/flight-details");
     }
 }

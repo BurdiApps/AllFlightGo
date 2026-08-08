@@ -1,6 +1,7 @@
 @page "/select-seat"
 @inject SelectedFlightService SelectedFlight
 @inject FlightService Flights
+@inject NavigationManager Nav
 @using AllFlight.Services
 @rendermode InteractiveServer
 
@@ -93,8 +94,9 @@ else
         SelectedPrice = el.Price;
     }
 
-    private void Continue()
-    {
-        // TODO: carry SelectedDesignator/SelectedPrice into booking confirmation step
-    }
+   private void Continue()
+{
+    SelectedFlight.SetSeat(SelectedDesignator, SelectedPrice);
+    Nav.NavigateTo("/review-booking");
+}
 }

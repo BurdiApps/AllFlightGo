@@ -1,0 +1,52 @@
+@page "/profile"
+@attribute [Authorize]
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthProvider
+@using AllFlight.Data
+@using Microsoft.AspNetCore.Identity
+@rendermode InteractiveServer
+
+<div class="afg-container">
+    <div class="afg-card" style="max-width:480px;">
+        <h2>Profile</h2>
+        <EditForm Model="this" OnValidSubmit="Save">
+            <div class="afg-field">
+                <label>Full Name</label>
+                <InputText @bind-Value="FullName" />
+            </div>
+            <button class="afg-btn" type="submit">Save</button>
+        </EditForm>
+        @if (Saved) { <p>✅ Saved</p> }
+    </div>
+</div>
+
+@code {
+    private string? FullName;
+    private bool Saved;
+    private ApplicationUser? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthProvider.GetAuthenticationStateAsync();
+        user = await UserManager.GetUserAsync(state.User);
+        FullName = user?.FullName;
+    }
+
+    private async Task Save()
+{
+    Console.WriteLine("Save() called");
+    if (user is null)
+    {
+        Console.WriteLine("user is null — aborting");
+        return;
+    }
+    user.FullName = FullName;
+    var result = await UserManager.UpdateAsync(user);
+    Console.WriteLine($"UpdateAsync succeeded: {result.Succeeded}");
+    if (!result.Succeeded)
+    {
+        Console.WriteLine(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+    Saved = true;
+}
+}

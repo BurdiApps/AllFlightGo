@@ -1,0 +1,55 @@
+@page "/mybookings"
+@attribute [Authorize]
+@inject AllFlight.Data.ApplicationDbContext Db
+@inject AuthenticationStateProvider AuthProvider
+@inject Microsoft.AspNetCore.Identity.UserManager<AllFlight.Data.ApplicationUser> UserManager
+@using AllFlight.Services
+@using AllFlight.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="afg-container">
+    <h2 class="afg-title">My Bookings</h2>
+
+    @if (Bookings.Count == 0)
+    {
+        <p>No bookings yet. <a href="/search">Search for a flight</a></p>
+    }
+    else
+    {
+        @foreach (var b in Bookings)
+        {
+            <div class="afg-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div>
+                    <small>@b.ConfirmationCode</small>
+                    <div><strong>@b.FlightNumber · @b.Origin → @b.Destination</strong></div>
+                    <small>@b.Departure.ToString("MMM d, yyyy")</small>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span class="afg-status-badge">@b.Status</span>
+                    <a class="afg-btn" href="/booking-confirmation/@b.Id">View</a>
+                    @if (b.Status == "Upcoming")
+                    {
+                        <a class="afg-btn" href="/cancel-booking/@b.Id">Cancel</a>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<Booking> Bookings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        if (user is null) return;
+
+        Bookings = Db.Bookings
+            .Where(b => b.UserId == user.Id)
+            .OrderByDescending(b => b.Departure)
+            .ToList();
+    }
+}

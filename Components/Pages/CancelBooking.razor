@@ -1,0 +1,46 @@
+@page "/cancel-booking/{Id:int}"
+@attribute [Authorize]
+@inject AllFlight.Data.ApplicationDbContext Db
+@inject NavigationManager Nav
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+
+@if (booking is null)
+{
+    <p>Booking not found.</p>
+}
+else
+{
+    <div class="afg-container">
+        <div class="afg-card" style="max-width: 500px; text-align:center;">
+            <h2>Cancel Booking</h2>
+            <p>Are you sure?</p>
+            <div style="background:#f3f4f6; padding:8px; border-radius:6px; font-weight:bold; margin:12px 0;">
+                @booking.ConfirmationCode
+            </div>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <a class="afg-btn" href="/mybookings">Keep Booking</a>
+                <button class="afg-btn" @onclick="DoCancel">Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Booking? booking;
+
+    protected override async Task OnInitializedAsync()
+    {
+        booking = await Db.Bookings.FindAsync(Id);
+    }
+
+    private async Task DoCancel()
+    {
+        if (booking is null) return;
+        booking.IsCancelled = true;
+        await Db.SaveChangesAsync();
+        Nav.NavigateTo("/mybookings");
+    }
+}

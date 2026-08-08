@@ -39,7 +39,7 @@ var authBuilder = builder.Services.AddAuthentication(options =>
 })
 .AddCookie(IdentityConstants.ExternalScheme);
 
-builder.Services.AddIdentityCore<IdentityUser>(options =>
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 })
@@ -62,8 +62,8 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
         {
             OnCreatingTicket = async context =>
             {
-                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
-                var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<IdentityUser>>();
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var signInManager = context.HttpContext.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>();
 
                 var loginProvider = GoogleDefaults.AuthenticationScheme;
                 var identity = context.Identity;
@@ -77,7 +77,7 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
                     ?? principal.FindFirstValue(ClaimTypes.Email)
                     ?? Guid.NewGuid().ToString("N");
                 var email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue(ClaimTypes.Upn);
-
+                var name = principal.FindFirstValue(ClaimTypes.Name);
                 var user = await userManager.FindByLoginAsync(loginProvider, providerKey);
                 if (user is null && !string.IsNullOrWhiteSpace(email))
                 {
@@ -86,7 +86,7 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 
                 if (user is null)
                 {
-                    user = new IdentityUser
+                    user = new ApplicationUser
                     {
                         UserName = email ?? providerKey,
                         Email = email,
@@ -151,7 +151,7 @@ app.MapGet("/login-google", async (HttpContext context) =>
     await context.ChallengeAsync(GoogleDefaults.AuthenticationScheme, properties);
 });
 
-app.MapGet("/logout", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
+app.MapGet("/logout", async (HttpContext context, SignInManager<ApplicationUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
     return Results.Redirect("/");

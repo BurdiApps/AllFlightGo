@@ -1,0 +1,46 @@
+@page "/booking-confirmation/{Id:int}"
+@attribute [Authorize]
+@inject AllFlight.Data.ApplicationDbContext Db
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+
+@if (booking is null)
+{
+    <p>Booking not found.</p>
+}
+else
+{
+    <div class="afg-container">
+        <div class="afg-card" style="max-width: 500px; text-align:center;">
+            <div style="font-size:32px;">✓</div>
+            <h2>Booking Confirmed!</h2>
+            <div style="background:#f3f4f6; padding:8px; border-radius:6px; font-weight:bold; margin:12px 0;">
+                @booking.ConfirmationCode
+            </div>
+
+            <div style="text-align:left;">
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Flight</span><strong>@booking.FlightNumber</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Route</span><strong>@booking.Origin → @booking.Destination</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Seat</span><strong>@(booking.SeatDesignator ?? "Not selected")</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Date</span><strong>@booking.Departure.ToString("MMM d, yyyy")</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Passenger</span><strong>@booking.PassengerName</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Total Paid</span><strong>@booking.Price.ToString("C")</strong></div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:16px; justify-content:center;">
+                <a class="afg-btn" href="/mybookings">View Bookings</a>
+                <a class="afg-btn" href="/">Return Home</a>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Booking? booking;
+
+    protected override async Task OnInitializedAsync()
+    {
+        booking = await Db.Bookings.FindAsync(Id);
+    }
+}

@@ -518,6 +518,14 @@ html, body {
     line-height: 1;
 }
 
+.afg-status-badge {
+    background: #e5e7eb;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
 /* ============================================================
    Footer
    ============================================================ */

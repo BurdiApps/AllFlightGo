@@ -1,0 +1,115 @@
+@page "/review-booking"
+@attribute [Authorize]
+@inject SelectedFlightService SelectedFlight
+@inject AllFlight.Data.ApplicationDbContext Db
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@using AllFlight.Data
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@rendermode InteractiveServer
+
+@if (flight is null)
+{
+    <p>No flight selected. <a href="/search">Back to search</a></p>
+}
+else
+{
+    <div class="afg-container">
+        <div class="afg-details-layout">
+            <div>
+                <div class="afg-card">
+                    <h3>Flight</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div><small>Airline</small><div>@flight.Airline</div></div>
+                        <div><small>Flight</small><div>@flight.FlightNumber</div></div>
+                        <div><small>Route</small><div>@flight.Origin → @flight.Destination</div></div>
+                        <div><small>Date</small><div>@flight.Departure.ToString("MMM d, yyyy")</div></div>
+                        <div><small>Departure</small><div>@flight.Departure.ToString("h:mm tt")</div></div>
+                        <div><small>Arrival</small><div>@flight.Arrival.ToString("h:mm tt")</div></div>
+                    </div>
+                </div>
+
+                <div class="afg-card" style="margin-top:16px;">
+                    <h3>Passenger</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div><small>Name</small><div>@(passengerName ?? "Not set")</div></div>
+                        <div><small>Email</small><div>@passengerEmail</div></div>
+                        <div><small>Seat</small><div>@(SelectedFlight.SelectedSeatDesignator ?? "Not selected")</div></div>
+                    </div>
+                    @if (string.IsNullOrWhiteSpace(passengerName))
+                    {
+                        <p style="color:#b91c1c; margin-top:8px;">
+                            Your name isn't set. <a href="/profile">Add it in your profile</a> before booking.
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div>
+                <div class="afg-card">
+                    <h3>Price Summary</h3>
+                    <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Base Fare</span><span>@flight.BaseFare?.ToString("C")</span></div>
+                    <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Taxes &amp; Fees</span><span>@flight.TaxesAndFees?.ToString("C")</span></div>
+                    <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Seat</span><span>@((SelectedFlight.SelectedSeatPrice ?? 0).ToString("C"))</span></div>
+                    <hr />
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; padding:6px 0;">
+                        <span>Total</span><span>@Total.ToString("C")</span>
+                    </div>
+                    <button class="afg-btn" style="width:100%; margin-top:12px;" disabled="@(string.IsNullOrWhiteSpace(passengerName))" @onclick="ConfirmBooking">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Flight? flight;
+    private string? passengerName;
+    private string passengerEmail = "";
+
+    private decimal Total => (flight?.Price ?? 0) + (SelectedFlight.SelectedSeatPrice ?? 0);
+
+    protected override async Task OnInitializedAsync()
+    {
+        flight = SelectedFlight.Current;
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        passengerName = user?.FullName;
+        passengerEmail = user?.Email ?? "";
+    }
+
+    private async Task ConfirmBooking()
+    {
+        if (flight is null || string.IsNullOrWhiteSpace(passengerName)) return;
+
+        var booking = new Booking
+        {
+            UserId = (await UserManager.GetUserAsync((await AuthProvider.GetAuthenticationStateAsync()).User))!.Id,
+            ConfirmationCode = "AFG-" + Random.Shared.Next(100000, 999999),
+            FlightId = flight.Id,
+            Airline = flight.Airline,
+            FlightNumber = flight.FlightNumber,
+            Origin = flight.Origin,
+            Destination = flight.Destination,
+            Departure = flight.Departure,
+            Arrival = flight.Arrival,
+            BaseFare = flight.BaseFare ?? 0,
+            TaxesAndFees = flight.TaxesAndFees ?? 0,
+            Price = Total,
+            SeatDesignator = SelectedFlight.SelectedSeatDesignator,
+            SeatPrice = SelectedFlight.SelectedSeatPrice,
+            PassengerName = passengerName,
+            PassengerEmail = passengerEmail
+        };
+
+        Db.Bookings.Add(booking);
+        await Db.SaveChangesAsync();
+
+        Nav.NavigateTo($"/booking-confirmation/{booking.Id}");
+    }
+}

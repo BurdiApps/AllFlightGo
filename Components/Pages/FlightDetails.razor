@@ -1,0 +1,73 @@
+@using AllFlight.Services
+
+@page "/flight-details"
+@inject SelectedFlightService SelectedFlight
+@inject NavigationManager Nav
+
+@if (flight is null)
+{
+    <p>No flight selected. <a href="/search">Back to search</a></p>
+}
+else
+{
+    <div class="afg-container">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <div>
+                <div class="afg-card">
+                    <h3>Flight Details</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div><small>Airline</small><div>@flight.Airline</div></div>
+                        <div><small>Flight Number</small><div>@flight.FlightNumber</div></div>
+                        <div><small>Departure</small><div>@flight.Origin — @flight.Departure.ToString("h:mm tt")</div></div>
+                        <div><small>Arrival</small><div>@flight.Destination — @flight.Arrival.ToString("h:mm tt")</div></div>
+                        <div><small>Duration</small><div>@flight.Duration.ToString(@"h\h\ mm\m")</div></div>
+                        <div><small>Stops</small><div>@(flight.Stops == 0 ? "Nonstop" : $"{flight.Stops} stop(s)")</div></div>
+                        <div><small>Base Fare</small><div>@(flight.BaseFare?.ToString("C") ?? "Not disclosed")</div></div>
+                        <div><small>Taxes & Fees</small><div>@(flight.TaxesAndFees?.ToString("C") ?? "Not disclosed")</div></div>
+                        <div><small>Total Price</small><div>@flight.Price.ToString("C")</div></div>
+                    </div>
+                </div>
+
+                <div class="afg-card" style="margin-top:16px;">
+                    <h3>Policies</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div><small>Baggage Fees</small><div>@(flight.BaggagePolicy ?? "Not disclosed")</div></div>
+                        <div><small>Seat Selection</small><div>@(flight.SeatSelectionIncluded is null ? "Not disclosed" : (flight.SeatSelectionIncluded.Value ? "Included" : "Fee applies"))</div></div>
+                        <div><small>Cancellation</small><div>@(flight.CancellationPolicy ?? "Not disclosed")</div></div>
+                        <div><small>Changes</small><div>@(flight.ChangeFee?.ToString("C") + " fee" ?? "Not disclosed")</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="afg-card">
+                    <h3>Transparency Score</h3>
+                    <div style="font-size:48px; font-weight:bold;">@flight.Score</div>
+                    <div><small>/ 100</small></div>
+                    <progress value="@flight.Score" max="100" style="width:100%;"></progress>
+                    <button class="afg-btn">View Breakdown</button>
+                </div>
+
+                <div class="afg-card" style="margin-top:16px;">
+                    <div style="font-size:24px; font-weight:bold;">@flight.Price.ToString("C")</div>
+                    <small>total, taxes included</small>
+                    <button class="afg-btn" style="width:100%; margin-top:12px;" @onclick="SelectSeat">Select Seat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Flight? flight;
+
+    protected override void OnInitialized()
+    {
+        flight = SelectedFlight.Current;
+    }
+
+    private void SelectSeat()
+    {
+        Nav.NavigateTo("/select-seat");
+    }
+}

@@ -230,6 +230,13 @@ html, body {
     box-shadow: 0 0 0 3px rgba(240,132,23,0.15);
 }
 
+.afg-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
 /* ============================================================
    Profile
    ============================================================ */

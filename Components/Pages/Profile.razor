@@ -2,51 +2,75 @@
 @attribute [Authorize]
 @inject UserManager<ApplicationUser> UserManager
 @inject AuthenticationStateProvider AuthProvider
+@inject AllFlight.Data.ApplicationDbContext Db
 @using AllFlight.Data
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @rendermode InteractiveServer
 
-<div class="afg-container">
-    <div class="afg-card" style="max-width:480px;">
-        <h2>Profile</h2>
-        <EditForm Model="this" OnValidSubmit="Save">
-            <div class="afg-field">
-                <label>Full Name</label>
-                <InputText @bind-Value="FullName" />
+@if (user is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="afg-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                @if (!string.IsNullOrWhiteSpace(user.AvatarUrl))
+                {
+                    <img src="@user.AvatarUrl" alt="Profile picture" class="profile-avatar" />
+                }
+                else
+                {
+                    <div class="profile-avatar profile-avatar-fallback">@Initials</div>
+                }
+                <h2 class="profile-name">@(user.FullName ?? "Name not available")</h2>
+                <p class="profile-email">@user.Email</p>
             </div>
-            <button class="afg-btn" type="submit">Save</button>
-        </EditForm>
-        @if (Saved) { <p>✅ Saved</p> }
+
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value">@TotalBookings</div>
+                    <div class="profile-stat-label">Total Bookings</div>
+                </div>
+                <div class="profile-stat-divider"></div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">@UpcomingCount</div>
+                    <div class="profile-stat-label">Upcoming</div>
+                </div>
+            </div>
+
+            <div class="profile-form">
+                <a class="afg-btn afg-btn-outline" href="/logout">Logout</a>
+            </div>
+        </div>
     </div>
-</div>
+}
 
 @code {
-    private string? FullName;
-    private bool Saved;
     private ApplicationUser? user;
+    private int TotalBookings;
+    private int UpcomingCount;
+
+    private string Initials =>
+        string.IsNullOrWhiteSpace(user?.FullName)
+            ? "?"
+            : string.Concat(user.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Take(2)
+                .Select(s => s[0])).ToUpper();
 
     protected override async Task OnInitializedAsync()
     {
-        var state = await AuthProvider.GetAuthenticationStateAsync();
-        user = await UserManager.GetUserAsync(state.User);
-        FullName = user?.FullName;
-    }
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        user = await UserManager.GetUserAsync(authState.User);
 
-    private async Task Save()
-{
-    Console.WriteLine("Save() called");
-    if (user is null)
-    {
-        Console.WriteLine("user is null — aborting");
-        return;
+        if (user is not null)
+        {
+            var bookings = Db.Bookings.Where(b => b.UserId == user.Id).ToList();
+            TotalBookings = bookings.Count;
+            UpcomingCount = bookings.Count(b => b.Status == "Upcoming");
+        }
     }
-    user.FullName = FullName;
-    var result = await UserManager.UpdateAsync(user);
-    Console.WriteLine($"UpdateAsync succeeded: {result.Succeeded}");
-    if (!result.Succeeded)
-    {
-        Console.WriteLine(string.Join(", ", result.Errors.Select(e => e.Description)));
-    }
-    Saved = true;
-}
 }

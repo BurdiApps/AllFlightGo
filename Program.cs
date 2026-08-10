@@ -78,6 +78,9 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
                     ?? Guid.NewGuid().ToString("N");
                 var email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.FindFirstValue(ClaimTypes.Upn);
                 var name = principal.FindFirstValue(ClaimTypes.Name);
+                var avatarUrl = identity.FindFirst("urn:google:picture")?.Value
+                    ?? identity.FindFirst("picture")?.Value;
+
                 var user = await userManager.FindByLoginAsync(loginProvider, providerKey);
                 if (user is null && !string.IsNullOrWhiteSpace(email))
                 {
@@ -90,7 +93,9 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
                     {
                         UserName = email ?? providerKey,
                         Email = email,
-                        EmailConfirmed = true
+                        EmailConfirmed = true,
+                        FullName = name,
+                        AvatarUrl = avatarUrl
                     };
 
                     var createResult = await userManager.CreateAsync(user);

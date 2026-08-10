@@ -231,6 +231,174 @@ html, body {
 }
 
 /* ============================================================
+   Profile
+   ============================================================ */
+   .profile-card {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    padding: 32px 24px 24px;
+    text-align: center;
+    color: white;
+}
+
+.profile-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 14px;
+    display: block;
+    border: 3px solid rgba(255,255,255,0.2);
+}
+
+.profile-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f97316;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.profile-name {
+    margin: 0 0 4px;
+    font-size: 22px;
+}
+
+.profile-email {
+    margin: 0;
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+.profile-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.profile-stat {
+    text-align: center;
+}
+
+.profile-stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.profile-stat-label {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.profile-stat-divider {
+    width: 1px;
+    height: 36px;
+    background: #e5e7eb;
+}
+
+.profile-form {
+    padding: 24px;
+}
+
+.profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.profile-saved {
+    font-size: 13px;
+    color: #16a34a;
+}
+
+.afg-btn-outline {
+    background: transparent;
+    color: #0f172a;
+    border: 1px solid #d1d5db;
+    display: block;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-section-title {
+    padding: 20px 24px 0;
+    margin: 0 0 8px;
+}
+
+.profile-empty {
+    padding: 0 24px 20px;
+    color: #64748b;
+}
+
+.booking-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    border-top: 1px solid #f1f1f1;
+}
+
+.booking-code {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.booking-route {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.booking-date {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.booking-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.afg-status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.afg-status-upcoming {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.afg-status-completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.afg-status-cancelled {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ============================================================
    Buttons
    ============================================================ */
 .afg-btn {

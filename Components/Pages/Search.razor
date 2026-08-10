@@ -7,6 +7,7 @@
 @inject NavigationManager Nav
 @inject SelectedFlightService SelectedFlight
 @rendermode InteractiveServer
+@implements IDisposable
 
 <PageTitle>Search Results — AllFlightGo</PageTitle>
 
@@ -46,49 +47,54 @@
     <!-- Results -->
     <section class="afg-results">
         <h2 class="afg-title" style="margin-top:0;">
-            Results: @Origin → @Destination · @Date.ToString("MMM d, yyyy")
-        </h2>
+    Results: @Origin → @Destination · @Date.ToString("MMM d, yyyy")
+</h2>
 
-        @if (IsLoading)
-        {
-            <p>🔍 Searching flights...</p>
-        }
-        else if (!AllResults.Any())
-        {
-            <p>No flights found. Try different airports or a later date (Duffel test data works best 30+ days out).</p>
-        }
-        else if (!Filtered.Any())
-        {
-            <p>No flights match your filters.</p>
-        }
-        else
-        {
-            @foreach (var f in Filtered)
-            {
-                <div class="afg-flight-card">
-                    <div class="afg-flight-logo">✈</div>
+    @if (IsLoading)
+    {
+        <p>🔍 Searching flights...</p>
+    }
+    else if (string.IsNullOrWhiteSpace(Origin) || string.IsNullOrWhiteSpace(Destination))
+    {
+        <p>Start a search from the <a href="/">home page</a> to see results here.</p>
+    }
+    else if (!AllResults.Any())
+    {
+        <p>No flights found. Try different airports or a later date (Duffel test data works best 30+ days out).</p>
+    }
+    else if (!Filtered.Any())
+    {
+        <p>No flights match your filters.</p>
+    }
+    else
+    {
+    @foreach (var f in Filtered)
+    {
+        <div class="afg-flight-card">
+            <div class="afg-flight-logo">✈</div>
 
-                    <div class="afg-flight-info">
-                        <div class="afg-flight-num">@f.Airline · @f.FlightNumber</div>
-                        <div class="afg-flight-route"><strong>@f.Origin → @f.Destination</strong></div>
-                        <div class="afg-flight-times">
-                            @f.Departure.ToString("h:mm tt") → @f.Arrival.ToString("h:mm tt")
-                        </div>
-                        <div class="afg-flight-stops">@(f.Stops == 0 ? "Nonstop" : $"{f.Stops} Stop(s)")</div>
-                    </div>
-
-                    <div class="afg-flight-score">
-                        <div class="label">Score</div>
-                        <div class="value">@f.Score/100</div>
-                    </div>
-
-                    <div class="afg-flight-action">
-                        <div class="price">$@f.Price</div>
-                        <button class="afg-btn" @onclick="() => ViewDetails(f)">View Details</button>                    </div>
+            <div class="afg-flight-info">
+                <div class="afg-flight-num">@f.Airline · @f.FlightNumber</div>
+                <div class="afg-flight-route"><strong>@f.Origin → @f.Destination</strong></div>
+                <div class="afg-flight-times">
+                    @f.Departure.ToString("h:mm tt") → @f.Arrival.ToString("h:mm tt")
                 </div>
-            }
-        }
-    </section>
+                <div class="afg-flight-stops">@(f.Stops == 0 ? "Nonstop" : $"{f.Stops} Stop(s)")</div>
+            </div>
+
+            <div class="afg-flight-score">
+                <div class="label">Score</div>
+                <div class="value">@f.Score/100</div>
+            </div>
+
+            <div class="afg-flight-action">
+                <div class="price">$@f.Price</div>
+                <button class="afg-btn" @onclick="() => ViewDetails(f)">View Details</button>
+            </div>
+        </div>
+    }
+}
+</section>
 </div>
 
 @code {
@@ -110,21 +116,49 @@
             .Where(f => StopsFilter == -1 || (StopsFilter == 2 ? f.Stops >= 2 : f.Stops == StopsFilter))
             .Where(f => string.IsNullOrEmpty(AirlineFilter) || f.Airline == AirlineFilter);
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
+{
+    Nav.LocationChanged += HandleLocationChanged;
+}
+
+private async void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+{
+    await LoadResults();
+    await InvokeAsync(StateHasChanged);
+}
+
+protected override async Task OnInitializedAsync()
+{
+    await LoadResults();
+}
+
+private async Task LoadResults()
+{
+    var uri = Nav.ToAbsoluteUri(Nav.Uri);
+    var q = QueryHelpers.ParseQuery(uri.Query);
+
+    Origin = q.TryGetValue("origin", out var o) ? o.ToString().ToUpper() : "";
+    Destination = q.TryGetValue("destination", out var d) ? d.ToString().ToUpper() : "";
+    Date = q.TryGetValue("date", out var dt) && DateTime.TryParse(dt, out var parsed)
+        ? parsed : DateTime.Today.AddDays(30);
+    Passengers = q.TryGetValue("passengers", out var p) && int.TryParse(p, out var pi) ? pi : 1;
+
+    if (string.IsNullOrWhiteSpace(Origin) || string.IsNullOrWhiteSpace(Destination))
     {
-        var uri = Nav.ToAbsoluteUri(Nav.Uri);
-        var q = QueryHelpers.ParseQuery(uri.Query);
-
-        Origin = q.TryGetValue("origin", out var o) ? o.ToString().ToUpper() : "JFK";
-        Destination = q.TryGetValue("destination", out var d) ? d.ToString().ToUpper() : "LAX";
-        Date = q.TryGetValue("date", out var dt) && DateTime.TryParse(dt, out var parsed)
-            ? parsed : DateTime.Today.AddDays(30);
-        Passengers = q.TryGetValue("passengers", out var p) && int.TryParse(p, out var pi) ? pi : 1;
-
-        IsLoading = true;
-        AllResults = await Flights.SearchAsync(Origin, Destination, Date, Passengers);
+        AllResults = new();
         IsLoading = false;
+        return;
     }
+
+    IsLoading = true;
+    AllResults = await Flights.SearchAsync(Origin, Destination, Date, Passengers);
+    IsLoading = false;
+}
+
+public void Dispose()
+{
+    Nav.LocationChanged -= HandleLocationChanged;
+}
     private void ViewDetails(Flight f)
     {
         SelectedFlight.Set(f);

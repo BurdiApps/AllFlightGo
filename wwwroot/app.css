@@ -1,12 +1,56 @@
 :root {
+    /* Darkened --afg-blue from #4E7FBF so small text on white clears the WCAG AA
+       4.5:1 contrast ratio (the old blue was only ~3.6:1). It's still used for
+       borders too, where the slightly deeper shade looks fine. */
     --afg-navy:   #293241;
-    --afg-blue:   #4E7FBF;
+    --afg-blue:   #35618E;
     --afg-sky:    #98C1D9;
     --afg-orange: #F08417;
+    /* Button fills need WHITE text to pass 4.5:1, and the bright brand orange
+       is too light for that. This deeper orange is what we paint button
+       backgrounds with; --afg-orange still colors accents/borders/icons. */
+    --afg-orange-btn: #C2410C;
+    --afg-orange-btn-dark: #9A3412;
     --afg-cream:  #FFFCF2;
 }
 
 * { box-sizing: border-box; }
+
+/* ============================================================
+   Accessibility helpers
+   ============================================================ */
+/* A clear, consistent focus ring for keyboard users on every interactive
+   thing (links, buttons, seats, pagination). :focus-visible only shows it for
+   keyboard focus, so mouse clicks don't get an outline. */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+summary:focus-visible {
+    outline: 3px solid var(--afg-orange);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* "Skip to main content" link: hidden off-screen until a keyboard user tabs to
+   it (it's the very first focusable element), then it slides into view. */
+.afg-skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 200;
+    background: var(--afg-navy);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: top 0.15s ease;
+}
+.afg-skip-link:focus {
+    top: 0;
+}
 
 html, body {
     margin: 0;
@@ -97,13 +141,13 @@ html, body {
 }
 
 .afg-nav-links a.afg-nav-logout {
-    background: var(--afg-orange);
+    background: var(--afg-orange-btn);
     color: white;
     padding: 8px 16px;
     margin-left: 10px;
     box-shadow: 0 2px 6px rgba(240,132,23,0.35);
 }
-.afg-nav-links a.afg-nav-logout:hover { background: #d86f0d; color: white; }
+.afg-nav-links a.afg-nav-logout:hover { background: var(--afg-orange-btn-dark); color: white; }
 .afg-nav-links a.afg-nav-logout::after { display: none; }
 
 /* Hamburger */
@@ -357,7 +401,7 @@ html, body {
 
 .booking-code {
     font-size: 12px;
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .booking-route {
@@ -402,7 +446,7 @@ html, body {
    Buttons
    ============================================================ */
 .afg-btn {
-    background: linear-gradient(135deg, var(--afg-orange) 0%, #d86f0d 100%);
+    background: linear-gradient(135deg, var(--afg-orange-btn) 0%, var(--afg-orange-btn-dark) 100%);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -431,9 +475,9 @@ html, body {
     transition: all 0.15s ease;
 }
 .afg-btn-outline:hover {
-    background: var(--afg-orange);
+    background: var(--afg-orange-btn);
     color: white;
-    border-color: var(--afg-orange);
+    border-color: var(--afg-orange-btn);
     box-shadow: 0 2px 8px rgba(240,132,23,0.35);
 }
 

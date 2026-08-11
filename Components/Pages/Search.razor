@@ -21,8 +21,8 @@
         <!-- Sort: lets the user reorder the list. "Best score" is our default because
              the whole point of the app is the Transparency Score. -->
         <div class="afg-field">
-            <label>Sort by</label>
-            <select @bind="SortBy" @bind:after="ResetPage">
+            <label for="filter-sort">Sort by</label>
+            <select id="filter-sort" @bind="SortBy" @bind:after="ResetPage">
                 <option value="best">Best score</option>
                 <option value="price-asc">Price: low to high</option>
                 <option value="price-desc">Price: high to low</option>
@@ -33,13 +33,13 @@
         <!-- Every filter calls ResetPage after it changes so we jump back to page 1
              (otherwise you could be stuck on "page 5" of a now-shorter list). -->
         <div class="afg-field">
-            <label>Max Price ($@MaxPrice)</label>
-            <input type="range" min="100" max="2000" step="10" @bind="MaxPrice" @bind:after="ResetPage" />
+            <label for="filter-price">Max Price ($@MaxPrice)</label>
+            <input id="filter-price" type="range" min="100" max="2000" step="10" @bind="MaxPrice" @bind:after="ResetPage" />
         </div>
 
         <div class="afg-field">
-            <label>Stops</label>
-            <select @bind="StopsFilter" @bind:after="ResetPage">
+            <label for="filter-stops">Stops</label>
+            <select id="filter-stops" @bind="StopsFilter" @bind:after="ResetPage">
                 <option value="-1">Any</option>
                 <option value="0">Nonstop</option>
                 <option value="1">1 Stop</option>
@@ -48,8 +48,8 @@
         </div>
 
         <div class="afg-field">
-            <label>Airline</label>
-            <select @bind="AirlineFilter" @bind:after="ResetPage">
+            <label for="filter-airline">Airline</label>
+            <select id="filter-airline" @bind="AirlineFilter" @bind:after="ResetPage">
                 <option value="">All</option>
                 @foreach (var a in AllResults.Select(x => x.Airline).Distinct())
                 {
@@ -89,7 +89,7 @@
 
         @if (IsLoading)
         {
-            <p>🔍 Searching flights...</p>
+            <p role="status">🔍 Searching flights...</p>
         }
         else if (string.IsNullOrWhiteSpace(Origin) || string.IsNullOrWhiteSpace(Destination))
         {

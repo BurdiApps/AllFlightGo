@@ -4,8 +4,8 @@
 <div class="afg-card">
     <div class="afg-grid">
         <div class="afg-field">
-            <label>Origin</label>
-            <input list="afg-origin-list" value="@Origin" @oninput="OnOriginInput"
+            <label for="afg-origin">Origin</label>
+            <input id="afg-origin" list="afg-origin-list" value="@Origin" @oninput="OnOriginInput"
                    placeholder="City or airport (e.g. JFK)" autocomplete="off" />
             <datalist id="afg-origin-list">
                 @foreach (var s in OriginSuggestions)
@@ -15,8 +15,8 @@
             </datalist>
         </div>
         <div class="afg-field">
-            <label>Destination</label>
-            <input list="afg-destination-list" value="@Destination" @oninput="OnDestinationInput"
+            <label for="afg-destination">Destination</label>
+            <input id="afg-destination" list="afg-destination-list" value="@Destination" @oninput="OnDestinationInput"
                    placeholder="City or airport (e.g. LAX)" autocomplete="off" />
             <datalist id="afg-destination-list">
                 @foreach (var s in DestinationSuggestions)
@@ -26,12 +26,12 @@
             </datalist>
         </div>
         <div class="afg-field">
-            <label>Departure Date</label>
-            <input type="date" @bind="DepartureDate" />
+            <label for="afg-departure">Departure Date</label>
+            <input id="afg-departure" type="date" @bind="DepartureDate" />
         </div>
         <div class="afg-field">
-            <label>Passengers</label>
-            <select @bind="Passengers">
+            <label for="afg-passengers">Passengers</label>
+            <select id="afg-passengers" @bind="Passengers">
                 @for (int i = 1; i <= 6; i++)
                 {
                     <option value="@i">@i</option>
@@ -42,7 +42,7 @@
 
     @if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <div style="color: var(--afg-orange); font-weight:600; margin-top:12px;">
+        <div role="alert" style="color: var(--afg-orange-btn); font-weight:600; margin-top:12px;">
             ⚠️ @ErrorMessage
         </div>
     }

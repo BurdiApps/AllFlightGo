@@ -18,7 +18,7 @@
 
             @if (ShowError)
             {
-                <div style="background:#fee2e2; color:#991b1b; padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:14px;">
+                <div role="alert" style="background:#fee2e2; color:#991b1b; padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:14px;">
                     Invalid credentials or not an admin account.
                 </div>
             }
@@ -32,10 +32,13 @@
                 <label for="password">Password</label>
                 <input id="password" name="password" type="@(ShowPassword ? "text" : "password")"
                        autocomplete="current-password" required />
-                <span role="button" tabindex="0" @onclick="() => ShowPassword = !ShowPassword"
-                      style="display:inline-block; margin-top:6px; font-size:13px; color:#2563eb; cursor:pointer; user-select:none;">
+                @* A real <button> so keyboard users can toggle it with Enter/Space,
+                   not just a mouse. type="button" keeps it from submitting the form. *@
+                <button type="button" @onclick="() => ShowPassword = !ShowPassword"
+                        aria-pressed="@(ShowPassword ? "true" : "false")"
+                        style="align-self:flex-start; background:none; border:none; padding:0; margin-top:6px; font-size:13px; color:#1d4ed8; cursor:pointer;">
                     @(ShowPassword ? "Hide password" : "Show password")
-                </span>
+                </button>
             </div>
 
             <button class="afg-btn" type="submit" style="width:100%; margin-top:16px;">Sign in</button>

@@ -20,7 +20,7 @@
 
     @if (!string.IsNullOrEmpty(Message))
     {
-        <div class="afg-card" style="margin-top:16px; border-left:4px solid #dc2626; color:#991b1b;">@Message</div>
+        <div role="alert" class="afg-card" style="margin-top:16px; border-left:4px solid #dc2626; color:#991b1b;">@Message</div>
     }
 
     @if (Editing)
@@ -29,14 +29,14 @@
             <h3 style="margin-top:0;">@(string.IsNullOrEmpty(Form.Id) ? "New Flight" : "Edit Flight")</h3>
             <EditForm Model="Form" OnValidSubmit="Save">
                 <div class="afg-grid" style="grid-template-columns:1fr 1fr;">
-                    <div class="afg-field"><label>Airline</label><InputText @bind-Value="Form.Airline" /></div>
-                    <div class="afg-field"><label>Flight Number</label><InputText @bind-Value="Form.FlightNumber" /></div>
-                    <div class="afg-field"><label>Origin (3-letter code)</label><InputText @bind-Value="Form.Origin" maxlength="3" placeholder="BOI" /></div>
-                    <div class="afg-field"><label>Destination (3-letter code)</label><InputText @bind-Value="Form.Destination" maxlength="3" placeholder="SLC" /></div>
-                    <div class="afg-field"><label>Departure</label><InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Form.Departure" /></div>
-                    <div class="afg-field"><label>Arrival</label><InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Form.Arrival" /></div>
-                    <div class="afg-field"><label>Stops</label><InputNumber @bind-Value="Form.Stops" /></div>
-                    <div class="afg-field"><label>Price ($)</label><InputNumber @bind-Value="Form.Price" /></div>
+                    <div class="afg-field"><label for="f-airline">Airline</label><InputText id="f-airline" @bind-Value="Form.Airline" /></div>
+                    <div class="afg-field"><label for="f-flightnum">Flight Number</label><InputText id="f-flightnum" @bind-Value="Form.FlightNumber" /></div>
+                    <div class="afg-field"><label for="f-origin">Origin (3-letter code)</label><InputText id="f-origin" @bind-Value="Form.Origin" maxlength="3" placeholder="BOI" /></div>
+                    <div class="afg-field"><label for="f-destination">Destination (3-letter code)</label><InputText id="f-destination" @bind-Value="Form.Destination" maxlength="3" placeholder="SLC" /></div>
+                    <div class="afg-field"><label for="f-departure">Departure</label><InputDate id="f-departure" Type="InputDateType.DateTimeLocal" @bind-Value="Form.Departure" /></div>
+                    <div class="afg-field"><label for="f-arrival">Arrival</label><InputDate id="f-arrival" Type="InputDateType.DateTimeLocal" @bind-Value="Form.Arrival" /></div>
+                    <div class="afg-field"><label for="f-stops">Stops</label><InputNumber id="f-stops" @bind-Value="Form.Stops" /></div>
+                    <div class="afg-field"><label for="f-price">Price ($)</label><InputNumber id="f-price" @bind-Value="Form.Price" /></div>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:16px;">
                     <button class="afg-btn" type="submit">Save</button>

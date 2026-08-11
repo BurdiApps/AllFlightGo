@@ -1,29 +1,35 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Nav
 @implements IDisposable
+
+@* First focusable thing on the page: lets keyboard users jump straight to the
+   content and skip re-tabbing through the whole nav on every page. *@
+<a class="afg-skip-link" href="#main-content">Skip to main content</a>
+
 <nav class="afg-navbar">
     <a href="/" class="brand">
-        <img src="img/AFG_logo.svg" alt="AllFlightGo" />
+        <img src="img/AFG_logo.svg" alt="AllFlightGo home" />
         <div class="brand-text">
             <span class="brand-name">AllFlightGo</span>
             <span class="brand-tagline">Go Anywhere</span>
         </div>
     </a>
 
-    <button class="afg-nav-toggle" @onclick="ToggleMenu" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
+    <button class="afg-nav-toggle" @onclick="ToggleMenu"
+            aria-label="Toggle navigation menu" aria-expanded="@(MenuOpen ? "true" : "false")" aria-controls="afg-nav-links">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </button>
 
-    <div class="afg-nav-links @(MenuOpen ? "open" : "")">
-        <a href="/" class="@ActiveIf("/")">Home</a>
-        <a href="/search" class="@ActiveIf("/search")">Search</a>
+    <div id="afg-nav-links" class="afg-nav-links @(MenuOpen ? "open" : "")">
+        <a href="/" class="@ActiveIf("/")" aria-current="@CurrentPage("/")">Home</a>
+        <a href="/search" class="@ActiveIf("/search")" aria-current="@CurrentPage("/search")">Search</a>
         <AuthorizeView>
             <Authorized>
-                <a href="/mybookings" class="@ActiveIf("/mybookings")">My Bookings</a>
-                <a href="/profile" class="@ActiveIf("/profile")">Profile</a>
+                <a href="/mybookings" class="@ActiveIf("/mybookings")" aria-current="@CurrentPage("/mybookings")">My Bookings</a>
+                <a href="/profile" class="@ActiveIf("/profile")" aria-current="@CurrentPage("/profile")">Profile</a>
                 @* Only staff accounts (users with the "Admin" role claim) ever see this link. *@
                 <AuthorizeView Roles="Admin" Context="admin">
-                    <a href="/admin" class="@ActiveIf("/admin")">Admin</a>
+                    <a href="/admin" class="@ActiveIf("/admin")" aria-current="@CurrentPage("/admin")">Admin</a>
                 </AuthorizeView>
                 <a href="/logout" class="afg-nav-logout">Logout</a>
             </Authorized>
@@ -34,7 +40,7 @@
     </div>
 </nav>
 
-<main>
+<main id="main-content" tabindex="-1">
     @Body
 </main>
 
@@ -56,6 +62,14 @@
     {
         var current = new Uri(Nav.Uri).AbsolutePath;
         return current.Equals(path, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    }
+
+    // Tells screen readers which link is the current page ("aria-current=page").
+    // Returns null for the others so the attribute isn't rendered at all.
+    private string? CurrentPage(string path)
+    {
+        var current = new Uri(Nav.Uri).AbsolutePath;
+        return current.Equals(path, StringComparison.OrdinalIgnoreCase) ? "page" : null;
     }
 
     protected override void OnInitialized()

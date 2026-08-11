@@ -12,23 +12,37 @@ else
         <div class="afg-card" style="max-width: 700px;">
             <h2>Transparency Score</h2>
 
-            <div style="display:flex; gap: 32px; align-items: flex-start;">
-                <div style="text-align:center; min-width:110px;">
-                    <div style="font-size:56px; font-weight:bold; line-height:1;">@flight.Score</div>
+            <div style="display:flex; gap: 32px; align-items: flex-start; flex-wrap:wrap;">
+                <div style="text-align:center; min-width:120px;">
+                    <div class="afg-score-num"
+                         style="font-size:56px; color:@TransparencyScoreCalculator.BandColor(flight.Score)"
+                         role="img"
+                         aria-label="Transparency score @flight.Score out of 100">@flight.Score</div>
                     <small>/ 100</small>
+                    <div class="afg-score-track" style="margin-top:12px;">
+                        <div class="afg-score-mask" style="left:@(flight.Score)%"></div>
+                    </div>
                 </div>
 
-                <div style="flex:1;">
+                <div style="flex:1; min-width:260px;">
                     @foreach (var factor in Breakdown)
                     {
                         <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
-                            <strong>@factor.Label</strong>
-                            <span>+@factor.EarnedPoints</span>
+                            <strong>
+                                @factor.Label
+                                @if (!factor.Disclosed)
+                                {
+                                    <span style="font-weight:normal; color:#9ca3af;"> (not disclosed)</span>
+                                }
+                            </strong>
+                            <span style="color:@(factor.Disclosed ? "#16a34a" : "#9ca3af")">
+                                +@factor.EarnedPoints<span style="color:#9ca3af;"> / @factor.MaxPoints</span>
+                            </span>
                         </div>
                     }
                     <div style="display:flex; justify-content:space-between; padding:12px 0; font-weight:bold;">
                         <span>Total</span>
-                        <span>@flight.Score</span>
+                        <span>@flight.Score / 100</span>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,58 @@
+@page "/admin"
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject AllFlight.Data.ApplicationDbContext Db
+@using AllFlight.Data
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Admin Dashboard — AllFlightGo</PageTitle>
+
+<div class="afg-container">
+    <h1 class="afg-title">Admin Dashboard</h1>
+    <p>Manage flights and bookings across AllFlightGo.</p>
+
+    <div class="afg-stat-grid">
+        <div class="afg-card afg-stat">
+            <div class="afg-stat-num">@FlightCount</div>
+            <div class="afg-stat-label">Flights</div>
+        </div>
+        <div class="afg-card afg-stat">
+            <div class="afg-stat-num">@BookingCount</div>
+            <div class="afg-stat-label">Bookings</div>
+        </div>
+        <div class="afg-card afg-stat">
+            <div class="afg-stat-num">@UserCount</div>
+            <div class="afg-stat-label">Users</div>
+        </div>
+        <div class="afg-card afg-stat">
+            <div class="afg-stat-num">@Revenue.ToString("C0")</div>
+            <div class="afg-stat-label">Revenue</div>
+        </div>
+    </div>
+
+    <div class="afg-section-title">Manage</div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="afg-btn" href="/admin/flights">Manage Flights</a>
+        <a class="afg-btn" href="/admin/bookings">Manage Bookings</a>
+    </div>
+</div>
+
+@code {
+    private int FlightCount;
+    private int BookingCount;
+    private int UserCount;
+    private decimal Revenue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FlightCount = await Db.Flights.CountAsync();
+        BookingCount = await Db.Bookings.CountAsync();
+        UserCount = await Db.Users.CountAsync();
+        // Revenue = money from bookings that weren't cancelled.
+        Revenue = await Db.Bookings
+            .Where(b => !b.IsCancelled)
+            .SumAsync(b => (decimal?)b.Price) ?? 0m;
+    }
+}

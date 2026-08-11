@@ -1,12 +1,29 @@
+@using AllFlight.Services
+@inject DuffelService Duffel
+
 <div class="afg-card">
     <div class="afg-grid">
         <div class="afg-field">
             <label>Origin</label>
-            <input @bind="Origin" placeholder="e.g. JFK" maxlength="3" />
+            <input list="afg-origin-list" value="@Origin" @oninput="OnOriginInput"
+                   placeholder="City or airport (e.g. JFK)" autocomplete="off" />
+            <datalist id="afg-origin-list">
+                @foreach (var s in OriginSuggestions)
+                {
+                    <option value="@s.IataCode">@s.Display</option>
+                }
+            </datalist>
         </div>
         <div class="afg-field">
             <label>Destination</label>
-            <input @bind="Destination" placeholder="e.g. LAX" maxlength="3" />
+            <input list="afg-destination-list" value="@Destination" @oninput="OnDestinationInput"
+                   placeholder="City or airport (e.g. LAX)" autocomplete="off" />
+            <datalist id="afg-destination-list">
+                @foreach (var s in DestinationSuggestions)
+                {
+                    <option value="@s.IataCode">@s.Display</option>
+                }
+            </datalist>
         </div>
         <div class="afg-field">
             <label>Departure Date</label>
@@ -36,30 +53,105 @@
 </div>
 
 @code {
+    // What the user typed / picked in the search box.
     private string Origin { get; set; } = "";
     private string Destination { get; set; } = "";
     private DateTime DepartureDate { get; set; } = DateTime.Today.AddDays(30);
     private int Passengers { get; set; } = 1;
-    private string? ErrorMessage;
+    private string? ErrorMessage; // shows a warning if the user typed something wrong
 
+    // These lists hold the airport suggestions that pop up while the user types.
+    // (Duffel sends us matching airports/cities from all over the world.)
+    private List<PlaceSuggestion> OriginSuggestions = new();
+    private List<PlaceSuggestion> DestinationSuggestions = new();
+
+    // A CancellationTokenSource lets us cancel an old suggestion request.
+    // We need this because the user types fast and we don't want old, slow
+    // results showing up after newer ones.
+    private CancellationTokenSource? _originCts;
+    private CancellationTokenSource? _destinationCts;
+
+    // Runs every time the user types a letter in the Origin box.
+    private async Task OnOriginInput(ChangeEventArgs e)
+    {
+        Origin = e.Value?.ToString() ?? "";       // save what they typed
+        _originCts?.Cancel();                      // cancel the previous lookup
+        var cts = _originCts = new CancellationTokenSource();
+        var results = await DebouncedSuggest(Origin, cts.Token);
+        if (results is not null) OriginSuggestions = results; // null means a newer keystroke won
+    }
+
+    // Same idea as above, but for the Destination box.
+    private async Task OnDestinationInput(ChangeEventArgs e)
+    {
+        Destination = e.Value?.ToString() ?? "";
+        _destinationCts?.Cancel();
+        var cts = _destinationCts = new CancellationTokenSource();
+        var results = await DebouncedSuggest(Destination, cts.Token);
+        if (results is not null) DestinationSuggestions = results;
+    }
+
+    // "Debounce" means: wait a tiny moment before asking Duffel, so we don't send a
+    // request for every single letter. If the user keeps typing, the old wait gets
+    // cancelled and we start over. This saves a LOT of unnecessary requests.
+    private async Task<List<PlaceSuggestion>?> DebouncedSuggest(string query, CancellationToken token)
+    {
+        var q = query.Trim();
+        if (q.Length < 2) return new List<PlaceSuggestion>(); // too short, show nothing
+        try
+        {
+            await Task.Delay(300, token);           // wait 0.3 seconds
+            return await Duffel.SuggestPlacesAsync(q); // then go get the suggestions
+        }
+        catch (TaskCanceledException)
+        {
+            return null; // the user typed again, so this old lookup was cancelled
+        }
+    }
+
+    // OnSubmit is how this shared component tells the parent page "the user searched".
+    // The parent (Home or Search page) decides what to do next.
     [Parameter] public EventCallback<SearchCriteria> OnSubmit { get; set; }
 
+    // Optional starting values. The Search page fills these in so the box already
+    // shows the user's current trip when they open it to "modify" a search.
+    [Parameter] public string? InitialOrigin { get; set; }
+    [Parameter] public string? InitialDestination { get; set; }
+    [Parameter] public DateTime? InitialDate { get; set; }
+    [Parameter] public int? InitialPassengers { get; set; }
+
+    // Runs once when the component loads. Copies the optional starting values in
+    // (only if they were actually provided).
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(InitialOrigin)) Origin = InitialOrigin;
+        if (!string.IsNullOrWhiteSpace(InitialDestination)) Destination = InitialDestination;
+        if (InitialDate.HasValue) DepartureDate = InitialDate.Value;
+        if (InitialPassengers is > 0) Passengers = InitialPassengers.Value;
+    }
+
+    // Runs when the "Search Flights" button is clicked.
+    // First we double-check the user's input, then we hand it off to the parent page.
     private async Task OnSearch()
     {
-        ErrorMessage = null;
+        ErrorMessage = null; // clear any old warning
 
+        // An airport code is always 3 letters (like JFK or LAX), so check for that.
         if (string.IsNullOrWhiteSpace(Origin) || Origin.Length != 3)
         { ErrorMessage = "Enter a 3-letter origin code (e.g. JFK)"; return; }
 
         if (string.IsNullOrWhiteSpace(Destination) || Destination.Length != 3)
         { ErrorMessage = "Enter a 3-letter destination code (e.g. LAX)"; return; }
 
+        // You can't fly from a city to the same city.
         if (Origin.Equals(Destination, StringComparison.OrdinalIgnoreCase))
         { ErrorMessage = "Origin and destination must differ"; return; }
 
+        // No searching for flights in the past.
         if (DepartureDate < DateTime.Today)
         { ErrorMessage = "Departure date must be today or later"; return; }
 
+        // Everything looks good, so bundle it up and send it to the parent page.
         var criteria = new SearchCriteria
         {
             Origin = Origin.ToUpper(),
@@ -71,6 +163,7 @@
             await OnSubmit.InvokeAsync(criteria);
     }
 
+    // A little "box" class just to hold the four search values together in one object.
     public class SearchCriteria
     {
         public string Origin { get; set; } = "";

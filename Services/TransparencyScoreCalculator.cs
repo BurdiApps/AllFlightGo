@@ -27,4 +27,13 @@ public static class TransparencyScoreCalculator
     {
         return GetBreakdown(flight).Sum(f => f.EarnedPoints);
     }
+
+    // Gauge colour for a score: red (low disclosure) → green (high disclosure).
+    public static string BandColor(int score) => score switch
+    {
+        >= 80 => "#16a34a", // green
+        >= 60 => "#ca8a04", // yellow
+        >= 40 => "#f97316", // orange
+        _     => "#dc2626", // red
+    };
 }

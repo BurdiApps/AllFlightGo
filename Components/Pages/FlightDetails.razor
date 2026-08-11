@@ -42,9 +42,15 @@ else
             <div>
                 <div class="afg-card">
                     <h3>Transparency Score</h3>
-                    <div style="font-size:48px; font-weight:bold;">@flight.Score</div>
-                    <div><small>/ 100</small></div>
-                    <progress value="@flight.Score" max="100" style="width:100%;"></progress>
+                    <div class="afg-score-num"
+                         style="font-size:48px; color:@TransparencyScoreCalculator.BandColor(flight.Score)"
+                         role="img"
+                         aria-label="Transparency score @flight.Score out of 100">
+                        @flight.Score<span style="font-size:18px; color:#6b7280;"> / 100</span>
+                    </div>
+                    <div class="afg-score-track" style="margin:12px 0;">
+                        <div class="afg-score-mask" style="left:@(flight.Score)%"></div>
+                    </div>
                     <button class="afg-btn" @onclick="ViewBreakdown">View Breakdown</button>
                 </div>
 

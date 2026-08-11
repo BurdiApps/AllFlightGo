@@ -1,0 +1,91 @@
+@page "/admin/bookings"
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject AllFlight.Data.ApplicationDbContext Db
+@using AllFlight.Data
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Manage Bookings — AllFlightGo</PageTitle>
+
+<div class="afg-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <h1 class="afg-title" style="margin:0;">Manage Bookings</h1>
+        <a class="afg-btn-outline" href="/admin">← Dashboard</a>
+    </div>
+
+    <div class="afg-card afg-admin-table" style="margin-top:16px;">
+        @if (Bookings.Count == 0)
+        {
+            <p style="margin:0;">No bookings yet.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref</th>
+                        <th>Passenger</th>
+                        <th>Flight</th>
+                        <th>Departs</th>
+                        <th>Paid</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Bookings)
+                    {
+                        <tr>
+                            @* The Booking row stores the flight details directly, so we don't
+                               need to join to another table to show the route. *@
+                            <td>@b.ConfirmationCode</td>
+                            <td>@(string.IsNullOrWhiteSpace(b.PassengerEmail) ? b.UserId : b.PassengerEmail)</td>
+                            <td>@b.Origin → @b.Destination · @b.FlightNumber</td>
+                            <td>@b.Departure.ToString("MMM d, h:mm tt")</td>
+                            <td>@b.Price.ToString("C")</td>
+                            <td><span class="afg-status-badge">@b.Status</span></td>
+                            <td style="white-space:nowrap;">
+                                @if (!b.IsCancelled)
+                                {
+                                    <button class="afg-btn-outline" @onclick="() => Cancel(b)">Cancel</button>
+                                }
+                                <button class="afg-btn-outline" @onclick="() => Delete(b)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Booking> Bookings = new();
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        // Newest bookings first.
+        Bookings = await Db.Bookings
+            .OrderByDescending(b => b.BookedAt)
+            .ToListAsync();
+    }
+
+    private async Task Cancel(Booking b)
+    {
+        // Matches CancelBooking.razor — set the flag, keep the row for records.
+        b.IsCancelled = true;
+        await Db.SaveChangesAsync();
+        await Load();
+    }
+
+    private async Task Delete(Booking b)
+    {
+        Db.Bookings.Remove(b);
+        await Db.SaveChangesAsync();
+        await Load();
+    }
+}

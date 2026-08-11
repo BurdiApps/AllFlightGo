@@ -230,13 +230,6 @@ html, body {
     box-shadow: 0 0 0 3px rgba(240,132,23,0.15);
 }
 
-.afg-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 20px;
-}
 /* ============================================================
    Profile
    ============================================================ */
@@ -784,4 +777,128 @@ html, body {
     .afg-destinations { grid-template-columns: 1fr; }
     .afg-title { font-size: 22px; }
     .afg-container { padding: 20px 16px; }
+}
+
+/* ============================================================
+   Pagination (search results)
+   ============================================================ */
+.afg-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+.afg-pagination button {
+    min-width: 38px;
+    padding: 8px 12px;
+    border: 1px solid rgba(78,127,191,0.35);
+    border-radius: 6px;
+    background: white;
+    color: var(--afg-navy);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.afg-pagination button:hover:not(:disabled) {
+    border-color: var(--afg-orange);
+    color: var(--afg-orange);
+}
+.afg-pagination button.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+.afg-pagination button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+/* ============================================================
+   Admin dashboard
+   ============================================================ */
+/* Overview stat cards on the admin home page. */
+.afg-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.afg-stat {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfaf6 100%);
+    border: 1px solid rgba(78,127,191,0.2);
+    border-left: 4px solid var(--afg-blue);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(41,50,65,0.06);
+}
+.afg-stat-num {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--afg-navy);
+    line-height: 1;
+}
+.afg-stat-label {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Simple table used on the Flights / Bookings management pages. */
+.afg-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(41,50,65,0.06);
+}
+.afg-admin-table th,
+.afg-admin-table td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eef1f4;
+    font-size: 14px;
+}
+.afg-admin-table th {
+    background: var(--afg-navy);
+    color: white;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.afg-admin-table tr:last-child td { border-bottom: none; }
+.afg-admin-table tr:hover td { background: rgba(152,193,217,0.08); }
+
+@media (max-width: 900px) {
+    .afg-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   Transparency score gauge (red → green gradient)
+   ============================================================ */
+.afg-score-num {
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* Full-spectrum track; the mask greys out the unearned portion. */
+.afg-score-track {
+    position: relative;
+    height: 12px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: linear-gradient(90deg,
+        #dc2626 0%, #f97316 30%, #eab308 55%, #84cc16 78%, #16a34a 100%);
+}
+.afg-score-mask {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: #e5e7eb;
 }

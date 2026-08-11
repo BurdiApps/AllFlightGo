@@ -1,0 +1,263 @@
+@page "/admin/flights"
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject AllFlight.Data.ApplicationDbContext Db
+@using AllFlight.Data
+@using AllFlight.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Manage Flights — AllFlightGo</PageTitle>
+
+<div class="afg-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <h1 class="afg-title" style="margin:0;">Manage Flights</h1>
+        <div style="display:flex; gap:10px;">
+            <a class="afg-btn-outline" href="/admin">← Dashboard</a>
+            <button class="afg-btn" @onclick="StartCreate">+ Add Flight</button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <div class="afg-card" style="margin-top:16px; border-left:4px solid #dc2626; color:#991b1b;">@Message</div>
+    }
+
+    @if (Editing)
+    {
+        <div class="afg-card" style="margin-top:16px; max-width:720px;">
+            <h3 style="margin-top:0;">@(string.IsNullOrEmpty(Form.Id) ? "New Flight" : "Edit Flight")</h3>
+            <EditForm Model="Form" OnValidSubmit="Save">
+                <div class="afg-grid" style="grid-template-columns:1fr 1fr;">
+                    <div class="afg-field"><label>Airline</label><InputText @bind-Value="Form.Airline" /></div>
+                    <div class="afg-field"><label>Flight Number</label><InputText @bind-Value="Form.FlightNumber" /></div>
+                    <div class="afg-field"><label>Origin (3-letter code)</label><InputText @bind-Value="Form.Origin" maxlength="3" placeholder="BOI" /></div>
+                    <div class="afg-field"><label>Destination (3-letter code)</label><InputText @bind-Value="Form.Destination" maxlength="3" placeholder="SLC" /></div>
+                    <div class="afg-field"><label>Departure</label><InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Form.Departure" /></div>
+                    <div class="afg-field"><label>Arrival</label><InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Form.Arrival" /></div>
+                    <div class="afg-field"><label>Stops</label><InputNumber @bind-Value="Form.Stops" /></div>
+                    <div class="afg-field"><label>Price ($)</label><InputNumber @bind-Value="Form.Price" /></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button class="afg-btn" type="submit">Save</button>
+                    <button class="afg-btn-outline" type="button" @onclick="CancelEdit">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <div class="afg-card afg-admin-table" style="margin-top:16px;">
+        @if (Flights.Count == 0)
+        {
+            <p style="margin:0;">No flights yet.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Airline</th><th>Flight</th><th>Route</th><th>Departs</th><th>Stops</th><th>Price</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Flights)
+                    {
+                        <tr>
+                            <td>@f.Airline</td>
+                            <td>@f.FlightNumber</td>
+                            <td>@f.Origin → @f.Destination</td>
+                            <td>@f.Departure.ToString("MMM d, h:mm tt")</td>
+                            <td>@f.Stops</td>
+                            <td>@f.Price.ToString("C")</td>
+                            <td style="white-space:nowrap;">
+                                <button class="afg-btn-outline" @onclick="() => StartEdit(f)">Edit</button>
+                                <button class="afg-btn-outline" @onclick="() => Delete(f)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Flight> Flights = new();
+    private FlightForm Form = new();
+    private bool Editing;
+    private string? Message;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        Flights = await Db.Flights.OrderByDescending(f => f.Departure).ToListAsync();
+    }
+
+    private void StartCreate()
+    {
+        Message = null;
+        Form = new FlightForm
+        {
+            Departure = DateTime.Today.AddDays(30).AddHours(9),
+            Arrival = DateTime.Today.AddDays(30).AddHours(12)
+        };
+        Editing = true;
+    }
+
+    private void StartEdit(Flight f)
+    {
+        Message = null;
+        Form = new FlightForm
+        {
+            Id = f.Id,
+            Airline = f.Airline,
+            FlightNumber = f.FlightNumber,
+            Origin = f.Origin,
+            Destination = f.Destination,
+            Departure = f.Departure,
+            Arrival = f.Arrival,
+            Stops = f.Stops,
+            Price = f.Price
+        };
+        Editing = true;
+    }
+
+    private void CancelEdit()
+    {
+        Editing = false;
+        Message = null;
+    }
+
+    private async Task Save()
+    {
+        // Check the form before we touch the database. If anything is wrong we
+        // show a friendly message and stop, so we never save a broken flight.
+        var problem = Validate();
+        if (problem is not null)
+        {
+            Message = problem;
+            return;
+        }
+
+        // Clean up the text: no stray spaces, airport codes in CAPS.
+        var origin = Form.Origin.Trim().ToUpper();
+        var destination = Form.Destination.Trim().ToUpper();
+
+        if (string.IsNullOrEmpty(Form.Id))
+        {
+            // New flight: give it its own id so it has a primary key.
+            Db.Flights.Add(new Flight
+            {
+                Id = Guid.NewGuid().ToString(),
+                Airline = Form.Airline.Trim(),
+                FlightNumber = Form.FlightNumber.Trim(),
+                Origin = origin,
+                Destination = destination,
+                Departure = Form.Departure,
+                Arrival = Form.Arrival,
+                Stops = Form.Stops,
+                Price = Form.Price
+            });
+        }
+        else
+        {
+            var f = await Db.Flights.FindAsync(Form.Id);
+            if (f is not null)
+            {
+                f.Airline = Form.Airline.Trim();
+                f.FlightNumber = Form.FlightNumber.Trim();
+                f.Origin = origin;
+                f.Destination = destination;
+                f.Departure = Form.Departure;
+                f.Arrival = Form.Arrival;
+                f.Stops = Form.Stops;
+                f.Price = Form.Price;
+            }
+        }
+
+        await Db.SaveChangesAsync();
+        Message = null;
+        Editing = false;
+        await Load();
+    }
+
+    // Returns an error message if the form has a problem, or null if it's all good.
+    // We check the simple, obvious rules a real flight needs.
+    private string? Validate()
+    {
+        if (string.IsNullOrWhiteSpace(Form.Airline))
+            return "Please enter an airline name.";
+
+        if (string.IsNullOrWhiteSpace(Form.FlightNumber))
+            return "Please enter a flight number.";
+
+        // Airport codes are the 3-letter IATA codes, like BOI, SLC, LAX.
+        var origin = Form.Origin?.Trim() ?? "";
+        var destination = Form.Destination?.Trim() ?? "";
+
+        if (!IsAirportCode(origin))
+            return "Origin must be a 3-letter airport code (for example BOI).";
+
+        if (!IsAirportCode(destination))
+            return "Destination must be a 3-letter airport code (for example SLC).";
+
+        if (origin.ToUpper() == destination.ToUpper())
+            return "Origin and destination can't be the same airport.";
+
+        // The plane can't land before it takes off.
+        if (Form.Arrival <= Form.Departure)
+            return "Arrival time must be after the departure time.";
+
+        if (Form.Stops < 0)
+            return "Stops can't be a negative number.";
+
+        if (Form.Price <= 0)
+            return "Price must be greater than $0.";
+
+        return null;
+    }
+
+    // True only when the text is exactly three letters A–Z (no numbers or symbols).
+    private static bool IsAirportCode(string code)
+    {
+        if (code.Length != 3)
+            return false;
+
+        foreach (var c in code)
+        {
+            if (!char.IsLetter(c))
+                return false;
+        }
+        return true;
+    }
+
+    private async Task Delete(Flight f)
+    {
+        // FK is Restrict (ApplicationDbContext) — block deletion if bookings reference it.
+        var hasBookings = await Db.Bookings.AnyAsync(b => b.FlightId == f.Id);
+        if (hasBookings)
+        {
+            Message = $"Can't delete {f.FlightNumber} — it has bookings. Cancel those first.";
+            return;
+        }
+
+        Db.Flights.Remove(f);
+        await Db.SaveChangesAsync();
+        Message = null;
+        await Load();
+    }
+
+    private sealed class FlightForm
+    {
+        public string Id { get; set; } = "";
+        public string Airline { get; set; } = "";
+        public string FlightNumber { get; set; } = "";
+        public string Origin { get; set; } = "";
+        public string Destination { get; set; } = "";
+        public DateTime Departure { get; set; } = DateTime.Today;
+        public DateTime Arrival { get; set; } = DateTime.Today;
+        public int Stops { get; set; }
+        public decimal Price { get; set; }
+    }
+}

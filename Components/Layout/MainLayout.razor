@@ -21,6 +21,10 @@
             <Authorized>
                 <a href="/mybookings" class="@ActiveIf("/mybookings")">My Bookings</a>
                 <a href="/profile" class="@ActiveIf("/profile")">Profile</a>
+                @* Only staff accounts (users with the "Admin" role claim) ever see this link. *@
+                <AuthorizeView Roles="Admin" Context="admin">
+                    <a href="/admin" class="@ActiveIf("/admin")">Admin</a>
+                </AuthorizeView>
                 <a href="/logout" class="afg-nav-logout">Logout</a>
             </Authorized>
             <NotAuthorized>

@@ -46,9 +46,13 @@
 
     <div class="afg-section-title">Featured Deals</div>
     <div class="afg-deals">
-        <div class="afg-deal">Deal A</div>
-        <div class="afg-deal">Deal B</div>
-        <div class="afg-deal">Deal C</div>
+        @foreach (var deal in Deals)
+        {
+            <div class="afg-deal">
+                <div class="afg-deal-route">@deal.Route</div>
+                <div class="afg-deal-price">from $@deal.Price</div>
+            </div>
+        }
     </div>
 </div>
 
@@ -69,4 +73,12 @@
                 + $"&passengers={c.Passengers}";
         Nav.NavigateTo(url);
     }
+    private record Deal(string Route, int Price);
+
+    private Deal[] Deals = new[]
+    {
+        new Deal("JFK → LAX", 189),
+        new Deal("ORD → MIA", 129),
+        new Deal("ABV → LAX", 649),
+    };
 }

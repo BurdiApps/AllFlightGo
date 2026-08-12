@@ -99,7 +99,7 @@ public class DuffelService
                         && rp.ValueKind == JsonValueKind.String
                         && decimal.TryParse(rp.GetString(), out var penalty))
                     {
-                        cancellationPolicy = allowed ? $"Refundable (−{penalty:C} penalty)" : "Non-refundable";
+                        cancellationPolicy = allowed ? $"Refundable (−{Money.Usd(penalty)} penalty)" : "Non-refundable";
                     }
                     else
                     {

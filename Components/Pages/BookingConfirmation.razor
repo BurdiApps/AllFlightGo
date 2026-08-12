@@ -24,7 +24,7 @@ else
                 <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Seat</span><strong>@(booking.SeatDesignator ?? "Not selected")</strong></div>
                 <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Date</span><strong>@booking.Departure.ToString("MMM d, yyyy")</strong></div>
                 <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Passenger</span><strong>@booking.PassengerName</strong></div>
-                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Total Paid</span><strong>@booking.Price.ToString("C")</strong></div>
+                <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Total Paid</span><strong>@Money.Usd(booking.Price)</strong></div>
             </div>
 
             <div style="display:flex; gap:12px; margin-top:16px; justify-content:center;">

@@ -68,7 +68,7 @@
                             <td>@f.Origin → @f.Destination</td>
                             <td>@f.Departure.ToString("MMM d, h:mm tt")</td>
                             <td>@f.Stops</td>
-                            <td>@f.Price.ToString("C")</td>
+                            <td>@Money.Usd(f.Price)</td>
                             <td style="white-space:nowrap;">
                                 <button class="afg-btn-outline" @onclick="() => StartEdit(f)">Edit</button>
                                 <button class="afg-btn-outline" @onclick="() => Delete(f)">Delete</button>

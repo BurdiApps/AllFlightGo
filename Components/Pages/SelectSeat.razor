@@ -38,7 +38,7 @@ else
                                     if (el.Type == "seat" && el.Designator is not null)
                                     {
                                         var isSelected = SelectedDesignator == el.Designator;
-                                        var priceText = el.Price is > 0 ? $"{el.Price:C}" : "free";
+                                        var priceText = el.Price is > 0 ? Money.Usd(el.Price.Value) : "free";
                                         <button class="seat-btn @(isSelected ? "selected" : "")"
                                                 aria-pressed="@(isSelected ? "true" : "false")"
                                                 aria-label="Seat @el.Designator, @priceText"
@@ -62,7 +62,7 @@ else
             @if (SelectedDesignator is not null)
             {
                 <p>Selected seat: <strong>@SelectedDesignator</strong>
-                    @(SelectedPrice is > 0 ? $"(+{SelectedPrice:C})" : "(Free)")
+                    @(SelectedPrice is > 0 ? $"(+{Money.Usd(SelectedPrice.Value)})" : "(Free)")
                 </p>
             }
             else

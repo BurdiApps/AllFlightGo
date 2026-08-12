@@ -44,7 +44,7 @@
                             <td>@(string.IsNullOrWhiteSpace(b.PassengerEmail) ? b.UserId : b.PassengerEmail)</td>
                             <td>@b.Origin → @b.Destination · @b.FlightNumber</td>
                             <td>@b.Departure.ToString("MMM d, h:mm tt")</td>
-                            <td>@b.Price.ToString("C")</td>
+                            <td>@Money.Usd(b.Price)</td>
                             <td><span class="afg-status-badge">@b.Status</span></td>
                             <td style="white-space:nowrap;">
                                 @if (!b.IsCancelled)

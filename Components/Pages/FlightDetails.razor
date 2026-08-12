@@ -23,9 +23,9 @@ else
                         <div><small>Arrival</small><div>@flight.Destination — @flight.Arrival.ToString("h:mm tt")</div></div>
                         <div><small>Duration</small><div>@flight.Duration.ToString(@"h\h\ mm\m")</div></div>
                         <div><small>Stops</small><div>@(flight.Stops == 0 ? "Nonstop" : $"{flight.Stops} stop(s)")</div></div>
-                        <div><small>Base Fare</small><div>@(flight.BaseFare?.ToString("C") ?? "Not disclosed")</div></div>
-                        <div><small>Taxes & Fees</small><div>@(flight.TaxesAndFees?.ToString("C") ?? "Not disclosed")</div></div>
-                        <div><small>Total Price</small><div>@flight.Price.ToString("C")</div></div>
+                        <div><small>Base Fare</small><div>@(Money.Usd(flight.BaseFare) ?? "Not disclosed")</div></div>
+                        <div><small>Taxes & Fees</small><div>@(Money.Usd(flight.TaxesAndFees) ?? "Not disclosed")</div></div>
+                        <div><small>Total Price</small><div>@Money.Usd(flight.Price)</div></div>
                     </div>
                 </div>
 
@@ -35,7 +35,7 @@ else
                         <div><small>Baggage Fees</small><div>@(flight.BaggagePolicy ?? "Not disclosed")</div></div>
                         <div><small>Seat Selection</small><div>@(flight.SeatSelectionIncluded is null ? "Not disclosed" : (flight.SeatSelectionIncluded.Value ? "Included" : "Fee applies"))</div></div>
                         <div><small>Cancellation</small><div>@(flight.CancellationPolicy ?? "Not disclosed")</div></div>
-                        <div><small>Changes</small><div>@(flight.ChangeFee?.ToString("C") + " fee" ?? "Not disclosed")</div></div>
+                        <div><small>Changes</small><div>@(flight.ChangeFee is null ? "Not disclosed" : Money.Usd(flight.ChangeFee.Value) + " fee")</div></div>
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@ else
                 </div>
 
                 <div class="afg-card" style="margin-top:16px;">
-                    <div style="font-size:24px; font-weight:bold;">@flight.Price.ToString("C")</div>
+                    <div style="font-size:24px; font-weight:bold;">@Money.Usd(flight.Price)</div>
                     <small>total, taxes included</small>
                     <button class="afg-btn" style="width:100%; margin-top:12px;" @onclick="SelectSeat">Select Seat</button>
                 </div>

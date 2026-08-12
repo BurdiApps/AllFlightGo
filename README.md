@@ -9,6 +9,43 @@ about fees, seat costs, and change/cancellation rules before they book.
 
 ---
 
+## See it in action
+
+A quick walkthrough of the booking journey, from search to seat.
+
+### 1. Search results, ranked by transparency
+
+Every flight is scored 0–100 and sorted so the most upfront airlines rise to the
+top. The score sits right next to the price, so you can weigh *cost* against
+*honesty* at a glance.
+
+![Search results showing two flights with Transparency Scores of 80 and 60](docs/screenshots/1-search-results.png)
+
+### 2. Flight details
+
+Open a flight to see the full picture — fares, taxes, duration, and the real
+policies (baggage, cancellation, change fees). Anything the airline *doesn't*
+disclose is clearly marked "Not disclosed" instead of hidden.
+
+![Flight details page for CAI to DCA, with fares, policies, and a Transparency Score of 80](docs/screenshots/2-flight-details.png)
+
+### 3. Transparency Score breakdown
+
+No black boxes: the breakdown shows exactly how the score was earned, point by
+point. Here the flight loses 20 points because seat fees weren't disclosed —
+which is precisely what the score is designed to surface.
+
+![Transparency Score breakdown listing points for base fare, taxes, baggage, seat fees, cancellation, and change policy](docs/screenshots/3-transparency-breakdown.png)
+
+### 4. Pick your seat
+
+Choose a seat from a real, live seat map pulled straight from the Duffel API,
+then review and confirm your booking.
+
+![Interactive seat map with seat 32E selected](docs/screenshots/4-seat-map.png)
+
+---
+
 ## What it does
 
 - **Search real flights** — live results from the [Duffel](https://duffel.com) API,

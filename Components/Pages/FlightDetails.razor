@@ -11,10 +11,11 @@
 else
 {
     <div class="afg-container">
+        <h1 class="afg-title">@flight.Origin → @flight.Destination</h1>
         <div class="afg-details-layout">
             <div>
                 <div class="afg-card">
-                    <h3>Flight Details</h3>
+                    <h2>Flight Details</h2>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div><small>Airline</small><div>@flight.Airline</div></div>
                         <div><small>Flight Number</small><div>@flight.FlightNumber</div></div>
@@ -29,7 +30,7 @@ else
                 </div>
 
                 <div class="afg-card" style="margin-top:16px;">
-                    <h3>Policies</h3>
+                    <h2>Policies</h2>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div><small>Baggage Fees</small><div>@(flight.BaggagePolicy ?? "Not disclosed")</div></div>
                         <div><small>Seat Selection</small><div>@(flight.SeatSelectionIncluded is null ? "Not disclosed" : (flight.SeatSelectionIncluded.Value ? "Included" : "Fee applies"))</div></div>
@@ -41,7 +42,7 @@ else
 
             <div>
                 <div class="afg-card">
-                    <h3>Transparency Score</h3>
+                    <h2>Transparency Score</h2>
                     <div class="afg-score-num"
                          style="font-size:48px; color:@TransparencyScoreCalculator.BandColor(flight.Score)"
                          role="img"

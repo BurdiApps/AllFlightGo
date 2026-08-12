@@ -38,8 +38,8 @@
         @foreach (var d in Destinations)
         {
             <div class="afg-destination">
-                <div class="thumb"></div>
-                <div class="name">@d</div>
+                <img class="thumb" src="@d.Image" alt="@d.Name" />
+                <div class="name">@d.Name</div>
             </div>
         }
     </div>
@@ -53,7 +53,13 @@
 </div>
 
 @code {
-    private string[] Destinations = new[] { "Los Angeles", "New York", "Chicago", "Miami" };
+    private (string Name, string Image)[] Destinations = new[]
+    {
+        ("Los Angeles", "img/dest-los-angeles.jpeg"),
+        ("Abuja", "img/dest-abuja.jpeg"),
+        ("Salt Lake City", "img/dest-salt-lake-city.jpeg"),
+        ("Mexico City", "img/dest-mexico-city.jpeg"),
+    };
 
     private void HandleSearch(SearchFlights.SearchCriteria c)
     {

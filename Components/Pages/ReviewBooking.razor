@@ -19,10 +19,11 @@
 else
 {
     <div class="afg-container">
+        <h1 class="afg-title">Review Booking</h1>
         <div class="afg-details-layout">
             <div>
                 <div class="afg-card">
-                    <h3>Flight</h3>
+                    <h2>Flight</h2>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                         <div><small>Airline</small><div>@flight.Airline</div></div>
                         <div><small>Flight</small><div>@flight.FlightNumber</div></div>
@@ -34,7 +35,7 @@ else
                 </div>
 
                 <div class="afg-card" style="margin-top:16px;">
-                    <h3>Passenger</h3>
+                    <h2>Passenger</h2>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                         <div><small>Name</small><div>@(passengerName ?? "Not set")</div></div>
                         <div><small>Email</small><div>@passengerEmail</div></div>
@@ -51,7 +52,7 @@ else
 
             <div>
                 <div class="afg-card">
-                    <h3>Price Summary</h3>
+                    <h2>Price Summary</h2>
                     <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Base Fare</span><span>@flight.BaseFare?.ToString("C")</span></div>
                     <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Taxes &amp; Fees</span><span>@flight.TaxesAndFees?.ToString("C")</span></div>
                     <div style="display:flex; justify-content:space-between; padding:6px 0;"><span>Seat</span><span>@((SelectedFlight.SelectedSeatPrice ?? 0).ToString("C"))</span></div>

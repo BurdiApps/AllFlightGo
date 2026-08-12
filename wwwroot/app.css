@@ -307,7 +307,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f97316;
+    background: var(--afg-orange-btn);
     color: white;
     font-size: 28px;
     font-weight: 700;
@@ -524,8 +524,10 @@ html, body {
     box-shadow: 0 6px 16px rgba(41,50,65,0.08);
 }
 .afg-destination .thumb {
-    height: 100px;
-    background: linear-gradient(135deg, var(--afg-sky) 0%, var(--afg-blue) 100%);
+    display: block;
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
 }
 .afg-destination .name {
     padding: 10px 12px;

@@ -21,7 +21,9 @@
     </button>
 
     <div id="afg-nav-links" class="afg-nav-links @(MenuOpen ? "open" : "")">
-        <a href="/" class="@ActiveIf("/")" aria-current="@CurrentPage("/")">Home</a>
+        @* No separate "Home" link here on purpose: the logo above already goes home,
+           and having both made screen readers announce two identical links in a row
+           (WAVE flags that as a redundant link). *@
         <a href="/search" class="@ActiveIf("/search")" aria-current="@CurrentPage("/search")">Search</a>
         <AuthorizeView>
             <Authorized>

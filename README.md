@@ -5,6 +5,9 @@ makes it *ours* is the **Transparency Score** — every flight gets a 0–100 ra
 (shown on a red→green gradient) so travelers can see how upfront an airline is
 about fees, seat costs, and change/cancellation rules before they book.
 
+**Video Demonstration**
+https://youtu.be/Xhfnw86v16E
+
 **Live site:** https://allflightgo.onrender.com
 
 ---
